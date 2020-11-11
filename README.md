@@ -16,7 +16,7 @@ This is a heavy WIP, and further information of how to use this will be provided
 
 * Start the spoa with: 
 ```
-RULES=modsecurity.conf ./spoa -f modsecurity.py
+RULES=rules/block-localhost.conf ./spoa -f modsecurity.py
 ```
 
 * Start the HAProxy with the configuration
