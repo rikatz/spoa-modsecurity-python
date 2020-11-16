@@ -6,15 +6,6 @@ WORKDIR=/sources
 
 mkdir -p ${WORKDIR} && cd ${WORKDIR}
 
-#git clone https://github.com/LMDB/lmdb --branch LMDB_0.9.24 --depth 1 &&
-#   make -C lmdb/libraries/liblmdb install
-
-#cd ${WORKDIR}
-#git clone https://github.com/lloyd/yajl --branch 2.1.0 --depth 1 \
-# && cd yajl \
-# && ./configure \
-# && make install
-
 cd ${WORKDIR}
 wget --quiet https://github.com/ssdeep-project/ssdeep/releases/download/release-2.14.1/ssdeep-2.14.1.tar.gz \
  && tar -xvzf ssdeep-2.14.1.tar.gz \

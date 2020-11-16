@@ -28,11 +28,13 @@ RULES=rules/block-localhost.conf ./spoa -f modsecurity.py
 * A sample modsecurity.conf rule that blocks all requests originating from 127.0.0.1
 
 ## TODO
-* Create a Dockerfile with everything
 * Create some better docs with the possible usages / configurations (like ignoring rules, which is in the configfile but optional)
-* There's a lot of TODO in the code, a lot of improvements
-* Better logging, so this can be used with HAProxy Ingress (maybe printing as json with the namespace of the app)
 * Turning paranoia level configurable per vhost
+
+* Prometheus Exporter -> This is going to be nice!!
+
+Metrics of transactions blocked per rule, per host:port, time of transaction, amount of invalid requests.
+
 * Performance testing, a lot of performance testing (this is not battle tested yet!)
 
 ## Thank you
