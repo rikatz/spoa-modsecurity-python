@@ -44,10 +44,10 @@ class modsectransaction():
             if obj['name'] == 'reqbody':
                 self.reqbody = obj['value']
                 continue
-            if obj['name'] == 'ignorerules':
+            if obj['name'] == 'ignorerules' and isinstance(obj['value'], str):
                 self.ignorerules = obj['value']
                 continue
-            if obj['name'] == 'host':
+            if obj['name'] == 'host' and isinstance(obj['value'], str):
                 host_port = obj['value'].split(":")
                 if len(host_port) == 2:
                     self.srv_host = host_port[0]
@@ -214,7 +214,6 @@ def modsecurity(args):
         logging.warning("Received an invalid request, denying")
         response = 1
 
-    transaction.printlog()
     print(f'Time taken: {time.perf_counter() - start_transaction:0.4f}s')
 
     del(transaction)
