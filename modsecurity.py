@@ -11,6 +11,7 @@ import sys
 import ModSecurity
 import time
 import json
+from pprint import pprint
 
 
 class modsectransaction():
@@ -18,6 +19,7 @@ class modsectransaction():
         # We create a new self.rules so we can add the IgnoreRules here
         self.rules = modsec.rules
         self.modsec = modsec.modsecurity
+        self.hostname = ""
         for obj in args:
             # TODO: There's for sure a less stupid way of doing this
             if obj['name'] == 'url':
@@ -36,7 +38,7 @@ class modsectransaction():
                 self.reqver = obj['value']
                 continue
             if obj['name'] == 'ip':
-                self.clientip = str(obj['value'])
+                self.client_ip = str(obj['value'])
                 continue
             if obj['name'] == 'reqhdrs':
                 self.reqhdrs = obj['value']
@@ -47,11 +49,11 @@ class modsectransaction():
             if obj['name'] == 'ignorerules' and isinstance(obj['value'], str):
                 self.ignorerules = obj['value']
                 continue
-            if obj['name'] == 'host' and isinstance(obj['value'], str):
-                host_port = obj['value'].split(":")
-                if len(host_port) == 2:
-                    self.srv_host = host_port[0]
-                    self.srv_port = int(host_port[1])
+            if obj['name'] == 'srvip':
+                self.srv_ip = str(obj['value'])
+                continue
+            if obj['name'] == 'srvport':
+                self.srv_port = int(obj['value'])
                 continue
 
         # Additional rules per transaction
@@ -64,25 +66,26 @@ class modsectransaction():
         self.transaction = ModSecurity.Transaction(self.modsec, self.rules)
 
     def isvalid(self):
+
         valid = (
             hasattr(self, 'method')
             and hasattr(self, 'path')
             and hasattr(self, 'query')
             and hasattr(self, 'reqver')
-            and hasattr(self, 'clientip')
+            and hasattr(self, 'client_ip')
             and hasattr(self, 'reqhdrs')
             and hasattr(self, 'reqbody')
-            and hasattr(self, 'srv_host')
+            and hasattr(self, 'srv_ip')
             and hasattr(self, 'srv_port')
         )
         return valid
 
     def call_modsec(self):
         # We ignore the source port, as this does not seems to really be used by modsecurity
-        self.transaction.processConnection(self.clientip,
+        self.transaction.processConnection(self.client_ip,
                                            12345,
-                                           self.srv_host,
-                                           self.srv_port)
+                                           self.srv_ip,
+                                           12345)
         response = self.process_intervention()
         if response > 0:
             return 1
@@ -132,6 +135,8 @@ class modsectransaction():
             value_end = name_end + 1 + value_length
             value = self.reqhdrs[name_end+1:value_end]
             offset = value_end
+            if name.decode("utf-8").lower() == 'host':
+                self.hostname = value.decode('utf-8')
             self.transaction.addRequestHeader(
                 name.decode("utf-8"), value.decode("utf-8"))
 
@@ -165,10 +170,10 @@ class modsectransaction():
     def printlog(self):
         log = {
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-            'url': self.srv_host + ":" + str(self.srv_port),
+            'hostname': self.hostname,
             'method': self.method,
             'query': self.path,
-            'ip': self.clientip,
+            'ip': self.client_ip,
             'request': self.reqver,
             'uniqueid': self.transaction.m_id,
             'rules': [],
@@ -204,7 +209,6 @@ class ModSec():
 
 
 def modsecurity(args):
-
     start_transaction = time.perf_counter()
     transaction = modsectransaction(args)
 
