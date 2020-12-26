@@ -128,4 +128,5 @@ Metrics of transactions blocked per rule, per host:port, time of transaction, am
 ## Thank you
 - Manuel Alejandro de Brito (aledbf) - For the idea of using python instead of almost killink myself with Go and CGO
 - Joao Morais Junior (jcmoraisjr) - For the valuable support with HAProxy
+- The creators of libModSecurity who are amazing people and are helping me and others a lot to make this project possible!
 - The creators of pymodsecurity and django_pymodsecurity, which were base for this script
